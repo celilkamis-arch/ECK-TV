@@ -1,0 +1,56 @@
+# ECK TV for Samsung Tizen
+
+## 1.8 interaction update
+
+The featured area opens the selected trailer, or the TMDB key form when recommendations have not been configured. Demo movies remain browser-only and never substitute for real TV recommendations. Only eight named apps appear, in two large rows of four. Vertical navigation follows header → featured movie → first app row → second app row → recommendations. The former movie-action strip, Live TV shortcut, tagline and visible trailer instruction have been removed. Settings use grouped menus, large focusable rows and a Back path to the main settings screen.
+
+Each genre toggle immediately switches discovery to the genre list and starts a fresh request; generation checks discard earlier responses. Each ambient opening chooses a random first scene excluding the preceding opening's first scene, persisted across app restarts. A one-scene collection necessarily repeats. Trailer playback still uses the existing YouTube adapter and requires confirmation on the real TV; mock launch success is not evidence of actual playback.
+
+ECK TV 1.8 is a Turkish home screen for Samsung Tizen 4.0 and newer, based on Free My TV. The Android and LG home screens retain their existing behavior. Only the Samsung builder enables `CONFIG.eckHome`.
+
+## Behavior
+
+- Two pill shortcuts: colored ambient preview and settings. No Live TV shortcut.
+- Two fixed app rows: YouTube, Netflix, Disney+, Prime Video / HBO Max, Internet, Apple TV, Spotify. Only detected installed ids launch; absent apps show an installation hint. See [logo sources](ECK-LOGO-SOURCES.md).
+- Two recommendation modes: mixed discovery or selected genres (OR). Both query TMDB discovery in Turkish with `region=TR`, without filtering by streaming service or theatrical/digital release type. Two popularity-sorted pages from the last 18 months are combined with an unrestricted-date popularity backfill, with a minimum 20 votes. Duplicate, adult, future-dated, hidden and imageless films are removed; the combined candidates are ordered by release date, newest first, capped at 30. Fewer results are possible for narrow genres or partial network failures. This is a metadata-based discovery list, not measured Turkish viewing statistics or a guarantee of local streaming availability. API reference: [Discover Movie](https://developer.themoviedb.org/reference/discover-movie).
+- OK on a film requests a YouTube trailer. TMDB video metadata is looked up by movie ID, with Turkish trailers preferred, then English. Clips and teasers are excluded. Missing trailers and rejected launch requests fall back to a quoted film-title/year search with Turkish official-trailer keywords. YouTube can accept a request yet ignore the video URI on some firmware. Playback and Return behavior must be checked on the device. No autoplay video is loaded on focus.
+- The selected movie and focused section survive hiding, relaunching and reload. The recommendation rail advances a moving six-card window using Left/Right. Previous favorites remain accessible in settings; the removed action strip no longer offers add/hide/search buttons. Existing hidden ids are retained. Two versioned movie-list cache slots expire after six hours, with automatic refresh while visible or on resume and manual refresh in settings. Stale data remains available when all requests fail; successful partial results remain usable.
+- Ambient mode starts after two idle minutes on the home screen, with a 45-second photo interval and a two-second crossfade. Its small clock, date and weather remain visible. The first received key dismisses it without also activating a home-screen item.
+- Online scene metadata is refreshed daily from the repository scene manifest and NASA Images. Only approved HTTPS image hosts are accepted; at most 12 scene records and four explicit preloaded Image objects are retained. The next scene is preloaded before switching. HTTP image caching is browser-managed; photos are not guaranteed to survive offline restarts. A gradient remains usable when no image can load. All timers pause visible work when the app is hidden.
+- Day/night theme follows forecast sunrise/sunset, with 06:00/18:00 fallback; manual light/dark themes are available. Crypto requests and panels are disabled in the Samsung mode.
+
+## Preview and build
+
+```text
+python tizen/build.py --generic --preview
+python -m http.server 8765 --bind 127.0.0.1 --directory out/tizen
+```
+
+Open `http://127.0.0.1:8765/` for the real empty-key flow or append `?demo=1` for clearly labeled, browser-only sample movies. Demo titles are fixed fixtures, not a live popularity list. The demo switch is ignored on a real TV.
+
+For live recommendations, enter a personal TMDB key in the TV's own ECK settings; the generic package contains no key. Set the weather city there too. Location stays in the app's local preferences and goes to Open-Meteo for forecasts.
+
+Build and sign with an existing private author profile:
+
+```text
+python tizen/build.py --generic --sign PROFILE
+python tizen/install.py <TV_IP>
+```
+
+The generic build creates an **unsigned** `FreeMyTV-tizen.wgt` unless `--sign` is passed. Do not install an unsigned build. Signing with a separate local helper is also possible; author material must stay outside the repository. Retain the same author certificate for every subsequent ECK update. Never reuse a previous signature XML after changing the payload.
+
+## Installation identity
+
+ECK uses `ECKTVHome1.ECKTV` / package `ECKTVHome1`, distinct from upstream `FreeMyTVio.FreeMyTV`. An upstream release signed by another author cannot be assumed to accept a custom update. The separate identity preserves the existing installation and its settings. Storage is isolated, so an old app's TMDB key is not copied to ECK. Do not uninstall an existing app automatically to bypass a signature error.
+
+## Verification
+
+Run `tools/check.sh web` (Python, Node and Bash) for translations, both web packages, preference tests, the ECK core/TV tests, ES5 syntax and the legacy API/CSS checks. Android CI remains the upstream build. The new tests use mocked network and TV APIs: passing them is not evidence of real YouTube playback, satellite video or frame rate.
+
+On the TV, verify the two-minute timeout, 45-second crossfade, first-key-only wake, both app rows, grouped settings and Back behavior, genre selection, 30-film navigation where available, day/night readability, trailer search, preserved position after returning and a subsequent update signed by the same ECK author. Do not change picture, sound, network or account settings to make a test pass.
+
+## Public repository boundaries
+
+Do not commit personal/device identifiers, local addresses, credentials, API keys, certificate private keys, signing profiles, device logs, generated `config.js`, signed packages containing private configuration, or environment files. Generic builds include no user settings. Public certificate chains in a generic signed package contain no personal author fields when a neutral development subject is used; private keys are never included.
+
+Image sources: [Unsplash](https://unsplash.com/) and [NASA Images](https://images.nasa.gov/). Movie metadata: [TMDB](https://www.themoviedb.org/). Base project: [Free My TV](https://github.com/simbasjungles/free-my-tv).
