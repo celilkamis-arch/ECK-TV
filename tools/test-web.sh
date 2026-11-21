@@ -4,3 +4,5 @@ cd "$(dirname "$0")/.."
 node tests/WebPrefsTest.js
 node tests/EckCoreTest.js
 node tests/EckTvTest.js
+node tests/EckHomeTest.js
+node tests/EckPlayerTest.js
