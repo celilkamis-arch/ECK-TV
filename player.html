@@ -17,6 +17,7 @@
     }});
     check=setInterval(function(){try{var time=player.getCurrentTime();if(player.getPlayerState()===1&&player.getVideoData().video_id===id&&previous>=0&&time>previous+0.15){clearTimeout(timer);clearInterval(check);report('playing',0,true);}previous=time;}catch(e){}},1000);
   };
+  window.addEventListener('message',function(e){if(e.source===parent&&e.data&&e.data.type==='eck-player-command'&&e.data.command==='play'&&player)try{player.playVideo();}catch(ignore){}});
   document.addEventListener('keydown',function(e){if(e.keyCode===10009||e.keyCode===27||e.keyCode===8){e.preventDefault();report('close',0,false);}});
   timer=setTimeout(function(){fail('timeout');},20000);
   var api=document.createElement('script');api.src='https://www.youtube.com/iframe_api';api.onerror=function(){fail('network');};document.head.appendChild(api);
