@@ -12,7 +12,7 @@ function setup(saved, hasKey, startTime, platform) {
   w.Image = function () { images.push(this); };
   w.CONFIG = {eckHome: true}; w.I18N = {set: function () {}, setClock: function () {}};
   w.formatDate = function () { return 'Date'; };
-  w.Prefs = {tmdbKey: function () { return hasKey === false ? '' : 'test-only-placeholder'; }, city: function () { return ''; }, theme: function () { return 'auto'; }};
+  w.Prefs = {tmdbKey: function () { return hasKey === false ? '' : 'test-only-placeholder'; }, city: function () { return ''; }, theme: function () { try { return w.JSON.parse(w.localStorage.getItem('fmtv.theme')) || 'auto'; } catch (e) { return 'auto'; } }, set: function (k, v) { w.localStorage.setItem('fmtv.' + k, w.JSON.stringify(v)); }};
   w.Data = {weather: null, onChange: function () {}, refresh: function () {}, isNight: function () { return true; }, image: function (p) { return 'https://image.tmdb.org/t/p/w342' + p; }};
   var titles = ['YouTube', 'Netflix', 'Disney+', 'Prime Video', 'HBO Max', 'Internet', 'Apple TV', 'Spotify', 'Extra app'];
   w.TV = {name: platform || 'browser', keys: {back: 461}, apps: function (cb) { cb(titles.map(function (title, i) { return {id: 'app' + i, title: title}; })); },
@@ -88,3 +88,10 @@ var offlineScene=setup();offlineScene.w.ECKHome.showSaver();
 for(var imageIndex=0;imageIndex<offlineScene.images.length&&imageIndex<12;imageIndex++){var image=offlineScene.images[imageIndex];if(image.src.indexOf('https:')===0){if(image.onerror)image.onerror();}else if(image.onload)image.onload();}
 assert(offlineScene.w.document.querySelector('.eck-saver-photo.on').style.backgroundImage.indexOf('icons/eck-scene-')>=0,'bundled photo displays when remote image fails');
 console.log('EckHomeTest: offline city/nature fallback is visible after image server failure.');
+
+var themes=setup();
+['night','aurora','city','nature','minimal'].forEach(function(name){
+  themes.w.Prefs.set('theme',name); themes.w.ECKHome.resume();
+  assert(themes.w.document.querySelector('#eck').className.indexOf('theme-'+name)>=0,'theme '+name+' applies persistently');
+});
+console.log('EckHomeTest: five persistent cinema themes passed.');

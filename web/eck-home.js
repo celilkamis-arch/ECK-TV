@@ -78,10 +78,21 @@
   }
   function clockText() { var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
   function weatherText() { return Data.weather ? Data.degrees(Data.weather.temp) + ' · ' + Data.condition(Data.weather.code, Data.weather.isDay) : 'Hava durumu bekleniyor'; }
+  function themeName() {
+    var theme = Prefs.theme();
+    if (theme === 'city') return 'city';
+    if (theme === 'aurora') return 'aurora';
+    if (theme === 'nature') return 'nature';
+    if (theme === 'minimal') return 'minimal';
+    if (theme === 'light') return 'city';
+    if (theme === 'dark') return 'night';
+    return 'night';
+  }
   function tick() {
     if (document.hidden) return;
-    root.className = Data.isNight(Date.now()) ? 'night' : '';
-    document.body.style.background = root.className === 'night' ? '#080c18' : '#eceef4';
+    root.className = 'theme-' + themeName() + (Data.isNight(Date.now()) ? ' night' : '');
+    try { localStorage.setItem('fmtv.night', Data.isNight(Date.now()) ? 'true' : 'false'); } catch (ignore) {}
+    document.body.style.background = (' ' + root.className + ' ').indexOf(' night ') >= 0 ? '#080c18' : '#eceef4';
     var city = (Prefs.city() || '').split(','), place = city.length > 1 ? city[1].trim() + ' / ' + city[0].trim() : city[0] || 'Şehir seç';
     status.textContent = clockText() + '  ·  ' + (Data.weather ? Data.degrees(Data.weather.temp) : '--°') + '  ·  ' + place + '  ';
     var code = Data.weather ? Data.weather.code : -1;
@@ -319,8 +330,10 @@
     ]);
   }
   function appearanceSettings() {
+    var themeNames = {night: 'Night Blue', aurora: 'Aurora', city: 'City Night', nature: 'Nature', minimal: 'Minimal Dark', auto: 'Gece / gündüz'};
+    var themeValue = themeNames[themeName()] || themeNames[Prefs.theme()] || 'Night Blue';
     menu('Görünüm ve ambiyans', 'Şehir ve doğa · 5 dakika bekleme · 45 saniyede yeni görsel', [
-      {label: 'Tema', value: Prefs.theme() === 'dark' ? 'Koyu' : Prefs.theme() === 'light' ? 'Açık' : 'Gündüz / gece', run: themeMenu},
+      {label: 'Tema', value: themeValue, run: themeMenu},
       {label: 'Ekran koruyucuyu önizle', value: 'Şehir / doğa', run: function () { closeModal(); showSaver(); }}
     ]);
   }
@@ -332,10 +345,12 @@
     if (fromStrip) modalBack = closeModal;
   }
   function themeMenu() {
-    menu('Tema', 'Otomatik tema, hava durumundaki gün doğumu ve batımını kullanır.', [
-      {label: 'Gündüz açık / gece koyu', run: function () { Prefs.set('theme', 'auto'); tick(); settings(); }},
-      {label: 'Her zaman koyu', run: function () { Prefs.set('theme', 'dark'); tick(); settings(); }},
-      {label: 'Her zaman açık', run: function () { Prefs.set('theme', 'light'); tick(); settings(); }}
+    menu('Tema', 'Beş sinematik tema. Günde birkaç kez değil, seçimin kalıcı olarak değişir.', [
+      {label: 'Night Blue', value: Prefs.theme() === 'night' ? '✓' : '', run: function () { Prefs.set('theme', 'night'); tick(); appearanceSettings(); }},
+      {label: 'Aurora', value: Prefs.theme() === 'aurora' ? '✓' : '', run: function () { Prefs.set('theme', 'aurora'); tick(); appearanceSettings(); }},
+      {label: 'City Night', value: Prefs.theme() === 'city' ? '✓' : '', run: function () { Prefs.set('theme', 'city'); tick(); appearanceSettings(); }},
+      {label: 'Nature', value: Prefs.theme() === 'nature' ? '✓' : '', run: function () { Prefs.set('theme', 'nature'); tick(); appearanceSettings(); }},
+      {label: 'Minimal Dark', value: Prefs.theme() === 'minimal' ? '✓' : '', run: function () { Prefs.set('theme', 'minimal'); tick(); appearanceSettings(); }}
     ]);
   }
   function inputForm(title, note, type, submit) {
@@ -467,8 +482,8 @@
     if (ECKPlayer.active()) { if (k === TV.keys.back || k === 27 || k === 8) ECKPlayer.close(); else if (k === 13) ECKPlayer.play(); e.preventDefault(); e.stopPropagation(); return; }
     if (saver) { hideSaver(); e.preventDefault(); e.stopPropagation(); return; }
     if (form && document.activeElement === form[0]) {
-      if (k === 13 || k === 65376) { form[0].blur(); modalIndex = 1; focusModal(); e.preventDefault(); }
-      else if (k === 10009 || k === 27 || k === 65385) { form[0].blur(); modalIndex = 1; focusModal(); e.preventDefault(); }
+      if (k === 13 || k === 65376) { form[0].blur(); form[1].click(); e.preventDefault(); }
+      else if (k === TV.keys.back || k === 10009 || k === 27 || k === 8 || k === 65385) { form[0].blur(); closeModal(); e.preventDefault(); }
       return;
     }
     if (k === 37) move(-1, 0); else if (k === 39) move(1, 0);

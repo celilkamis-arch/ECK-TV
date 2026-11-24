@@ -3,6 +3,24 @@ body.eck { background: #eceef4; color: #192039; }
 .eck #stage { display: none; }
 #eck { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; -webkit-transform-origin: 0 0; transform-origin: 0 0; background: #eceef4; }
 #eck.night { background: #080c18; color: #f4f6ff; }
+#eck.theme-night { background: #080c18; color: #f4f6ff; }
+#eck.theme-night .eck-wash { background: linear-gradient(180deg,rgba(8,12,24,0.75),rgba(8,12,24,0.94)); }
+#eck.theme-aurora { background: #09181d; color: #effffb; }
+#eck.theme-aurora .eck-wash { background: linear-gradient(180deg,rgba(7,31,34,0.72),rgba(5,17,30,0.96)); }
+#eck.theme-aurora .eck-brand b { color: #65d5b7; }
+#eck.theme-aurora .eck-top .eck-art { background: linear-gradient(135deg,#17796f,#30b88a 58%,#77d8bd); }
+#eck.theme-city { background: #0b1024; color: #f5f7ff; }
+#eck.theme-city .eck-wash { background: linear-gradient(180deg,rgba(10,14,36,0.74),rgba(5,9,24,0.96)); }
+#eck.theme-city .eck-brand b { color: #78a4ff; }
+#eck.theme-city .eck-top .eck-art { background: linear-gradient(135deg,#3156b8,#7e58ca 58%,#4d9fd7); }
+#eck.theme-nature { background: #10170f; color: #f4f7ed; }
+#eck.theme-nature .eck-wash { background: linear-gradient(180deg,rgba(12,28,16,0.74),rgba(8,18,12,0.96)); }
+#eck.theme-nature .eck-brand b { color: #82bd62; }
+#eck.theme-nature .eck-top .eck-art { background: linear-gradient(135deg,#436f32,#77a94e 58%,#b0b85c); }
+#eck.theme-minimal { background: #090909; color: #f2f2f2; }
+#eck.theme-minimal .eck-wash { background: linear-gradient(180deg,rgba(9,9,9,0.82),rgba(9,9,9,0.96)); }
+#eck.theme-minimal .eck-brand b { color: #ffffff; }
+#eck.theme-minimal .eck-top .eck-art { background: linear-gradient(135deg,#303030,#777777 58%,#a7a7a7); }
 .eck-wall { position: absolute; width: 100%; height: 100%; background-position: center; background-size: cover; opacity: 0.16; }
 .eck-wash { position: absolute; width: 100%; height: 100%; background: linear-gradient(180deg,rgba(236,238,244,0.85),rgba(236,238,244,0.94)); }
 .night .eck-wash { background: linear-gradient(180deg,rgba(8,12,24,0.75),rgba(8,12,24,0.94)); }
